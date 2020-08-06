@@ -1,0 +1,15 @@
+{
+  "autoload": {
+    "psr-0": {
+      "iFood": "API"
+    }
+  },
+  "name": "api-iFood",
+  "description": "Integração com a API do iFood",
+  "license": "MIT",
+  "type": "library",
+  "require": {
+    "php": ">=5.6"
+  },
+  "homepage": "https://github.com/Bratech-BR/API-IFOOD"
+}
