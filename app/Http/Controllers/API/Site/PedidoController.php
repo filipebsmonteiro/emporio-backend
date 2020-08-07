@@ -274,13 +274,22 @@ class PedidoController extends ApiController
         foreach ($combinacoes as $combinacao) {
             $relation = [
                 'quantidade' => 1,
-                'valor' => $combinacao['preco']
+                'valor' => $combinacao['preco'] ?? 0,
+                'Ped_prod_mult_idPed_prod_mult' => $combinacao['multiplo_id'] ?? null
             ];
+
+            // SubProdutos Layout Combo
             if (isset($combinacao['multiplo_id'])){
-                $relation['Ped_prod_mult_idPed_prod_mult'] = $combinacao['multiplo_id'];
+                foreach ($combinacao['combinacoes'] as $subcombinacao){
+                    $entity->combinacoes()->attach($subcombinacao['id'], [
+                        'quantidade' => 1,
+                        'Ped_prod_mult_idPed_prod_mult' => $combinacao['multiplo_id'],
+                        'valor' => $subcombinacao['preco'] ?? 0
+                    ]);
+                }
             }
             $entity->combinacoes()->attach($combinacao['id'], $relation);
-            $valorCombinacoes += $combinacao['preco'];
+            $valorCombinacoes += $relation['valor'];
         }
 
         return $valorCombinacoes;

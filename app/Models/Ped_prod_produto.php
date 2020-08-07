@@ -17,7 +17,8 @@ class Ped_prod_produto extends Model
         'Produtos_idProdutos'
     ];
 
-    public function produto(){
-        return $this->hasOne(Produto::class, 'id', 'Produtos_idProdutos');
+    public function multiplo()
+    {
+        return $this->hasOne(Produto_multiplo::class, 'id', 'Ped_prod_mult_idPed_prod_mult');
     }
 }

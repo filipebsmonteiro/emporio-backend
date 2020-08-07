@@ -20,6 +20,7 @@ class CreatePedProdProdutosTable extends Migration
 
             $table->foreignId('Ped_produtos_idPed_produtos')->constrained('pedidos_produtos');
             $table->foreignId('Produtos_idProdutos')->constrained('produtos');
+            $table->foreignId('Ped_prod_mult_idPed_prod_mult')->constrained('produto_multiplos');
 
             $table->timestamps();
         });

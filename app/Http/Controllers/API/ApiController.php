@@ -40,6 +40,7 @@ abstract class ApiController
             }
             if ($filter[0] === 'JOIN' || $filter[0] === 'join'){
                 //$this->Query = $this->Query->join('table', 'first', 'operator', 'second', 'inner', '');
+                $this->Query = $this->Query->addSelect("{$this->Model->getTable()}.*");
                 $this->Query = $this->Query->join(
                     $filter[1],
                     $filter[2],

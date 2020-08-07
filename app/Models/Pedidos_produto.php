@@ -47,28 +47,11 @@ class Pedidos_produto extends Model
      */
     public function combinacoes ()
     {
-        return
-            $this->belongsToMany(Produto::class, 'ped_prod_produtos', 'Ped_produtos_idPed_produtos', 'Produtos_idProdutos')
-                ->withPivot('id', 'quantidade', 'valor');
+        return $this->belongsToMany(
+            Produto::class,
+            'ped_prod_produtos',
+            'Ped_produtos_idPed_produtos',
+            'Produtos_idProdutos'
+        )->withPivot('id', 'quantidade', 'valor', 'Ped_prod_mult_idPed_prod_mult');
     }
-
-    /*** BLOCO COMBO ***/
-    /*
-     * Lista Relacionamentos dos Subprodutos (Layout Combo)
-     * /
-    public function pedProdMultiplo()
-    {
-        return $this->hasMany(Ped_prod_prod_multiplo::class, 'Ped_produtos_idPed_produtos', 'id');
-    }
-
-    /*
-     * Lista Subprodutos (Layout Combo)
-     * /
-    public function subProdutos ()
-    {
-        return
-            $this->belongsToMany(Produto::class, 'ped_prod_prod_multiplos', 'Ped_produtos_idPed_produtos', 'Produtos_idProdutos')
-                ->withPivot('id', 'quantidade', 'valor');
-    }*/
-
 }
