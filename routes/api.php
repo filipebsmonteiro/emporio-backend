@@ -17,7 +17,7 @@ Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel/auth'], function 
     Route::post('login', 'AuthController@login');
     Route::post('reset', 'AuthController@resetPassword');
 });
-Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'middleware' => ['auth:api_painel']], function () {
+Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'as' => 'painel.', 'middleware' => ['auth:api_painel']], function () {
     Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', 'AuthController@logout');
         Route::post('refresh', 'AuthController@refresh');

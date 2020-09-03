@@ -24,7 +24,7 @@ class SitePedidoRequest extends FormRequest
     public function rules()
     {
         return [
-            'agendamento'       => 'nullable|datetime',
+            'agendamento'       => 'nullable|date_format:Y-m-d H:i:s',
             'cupom_field'       => 'nullable|string',
             'endereco_id'       => 'required',
             'fidelidade_field'  => 'nullable',
