@@ -24,6 +24,7 @@ class ProdutoController extends ApiController
         $wheres = $this->Query->getQuery()->wheres;
         foreach ($wheres as $where) {
             if(
+                is_array($where) && key_exists('query', $where) &&
                 $where['query']->wheres[0]['column'] === 'Cat_produtos_idCat_produtos' &&
                 $where['query']->wheres[0]['type'] === 'Null'
             ){
