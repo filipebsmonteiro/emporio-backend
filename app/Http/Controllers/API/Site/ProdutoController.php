@@ -21,18 +21,31 @@ class ProdutoController extends ApiController
 
     protected function checkPromocao(): void
     {
+        $hasPromocao = false;
+        $LojasidLojas = 1;
         $wheres = $this->Query->getQuery()->wheres;
         foreach ($wheres as $where) {
             if(
                 is_array($where) && key_exists('query', $where) &&
                 $where['query']->wheres[0]['column'] === 'Cat_produtos_idCat_produtos' &&
                 $where['query']->wheres[0]['type'] === 'Null'
-            ){
-                $this->Query = $this->Model
-                    ->newQuery()
-                    ->where('promocionar', true);
-                $this->addDisponibilidadeFilter();
+            ) {
+                $hasPromocao = true;
             }
+            if(
+                is_array($where) && key_exists('query', $where) &&
+                $where['query']->wheres[0]['column'] === 'Lojas_idLojas'
+            ) {
+                $LojasidLojas = $where['query']->wheres[0]['value'];
+            }
+        }
+
+        if ($hasPromocao) {
+            $this->Query = $this->Model
+                ->newQuery()
+                ->where('Lojas_idLojas', $LojasidLojas)
+                ->where('promocionar', true);
+            $this->addDisponibilidadeFilter();
         }
     }
 
