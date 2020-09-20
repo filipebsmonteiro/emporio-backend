@@ -52,6 +52,7 @@ class ProdutoController extends ApiController
     public function index(Request $request)
     {
         $this->prepareQuery($request);
+        $this->addDisponibilidadeFilter();
         $this->checkPromocao();
         $this->executeQuery($request);
         return response()->json(new ProdutoCollection( $this->Results ));
