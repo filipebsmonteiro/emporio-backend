@@ -29,8 +29,10 @@ class IngredienteController extends ApiController
     {
         $ingrediente = $this->Model->create(array_merge(
             $request->all(),
-            'Cat_ingredientes_idCat_ingredientes' => 1,
-            ['Lojas_idLojas' => auth('api_painel')->user()->loja->id]
+            [
+                'Cat_ingredientes_idCat_ingredientes' => 1,
+                'Lojas_idLojas' => auth('api_painel')->user()->loja->id
+            ]
         ));
 
         return response()->json($ingrediente);
