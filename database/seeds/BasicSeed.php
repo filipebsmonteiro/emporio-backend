@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
-use App\Models\Administrativo\CanalVenda;
+use App\Models\Categoria_ingrediente;
 use App\Models\Cliente;
 use App\Models\EnderecoCliente;
 use App\Models\FormaPagamento;
@@ -22,14 +22,10 @@ class BasicSeed extends Seeder
     {
 
         Loja::create([
-//            'inicio_funcionamento'					=> '00:00',
-//            'termino_funcionamento'					=> '23:59',
-//            'inicio_delivery'					    => '00:00',
-//            'termino_delivery'					    => '23:59',
-            'fantasia'					            => 'Nome Fantasia',
+            'fantasia'					            => 'Primeira Loja',
             'CNPJ'					                => '00000000000000',
-            'razao_social'      					=> 'Razão Social',
-            'abreviacao'		        			=> 'Abreviação',
+            'razao_social'      					=> 'Primeira Loja',
+            'abreviacao'		        			=> '1ª Loja',
             'phone'					                => '(00) 0000-0000',
 
             'CEP'   					            => '00000-000',
@@ -106,10 +102,39 @@ class BasicSeed extends Seeder
             'password'								=> bcrypt('Br@T3ch!'),
             'Lojas_idLojas'                         => 1
         ]);
-
         User_has_perfil::create([
             'Users_idUsers'                         => 1,
             'Perfils_idPerfils'                     => 1
+        ]);
+        User::create([
+            'name'									=> 'Lojista Rápido',
+            'email'									=> 'lrapido@bratech.info',
+            'password'								=> bcrypt('123456'),
+            'Lojas_idLojas'                         => 1
+        ]);
+        User_has_perfil::create([
+            'Users_idUsers'                         => 2,
+            'Perfils_idPerfils'                     => 2
+        ]);
+        User::create([
+            'name'									=> 'Gerente Rápido',
+            'email'									=> 'grapido@bratech.info',
+            'password'								=> bcrypt('123456'),
+            'Lojas_idLojas'                         => 1
+        ]);
+        User_has_perfil::create([
+            'Users_idUsers'                         => 3,
+            'Perfils_idPerfils'                     => 3
+        ]);
+        User::create([
+            'name'									=> 'Atendente Rápido',
+            'email'									=> 'arapido@bratech.info',
+            'password'								=> bcrypt('123456'),
+            'Lojas_idLojas'                         => 1
+        ]);
+        User_has_perfil::create([
+            'Users_idUsers'                         => 4,
+            'Perfils_idPerfils'                     => 4
         ]);
 
         Cliente::create([
@@ -119,7 +144,6 @@ class BasicSeed extends Seeder
             'email'									=> 'admin@bratech.info',
             'password'								=> bcrypt('Br@T3ch!')
         ]);
-
         EnderecoCliente::create([
             'CEP'                                   => '00000000',
             'Clientes_idClientes'                   => 1,
@@ -130,15 +154,13 @@ class BasicSeed extends Seeder
             'nome'                                  => 'Dinheiro',
             'imagem'                                => 0
         ]);
-
         FormaPagamento::create([
             'nome'                                  => 'Pagamento Online',
             'imagem'                                => 0
         ]);
 
-//        CanalVenda::create([
-//            'nome'                                  => 'Loja Virtual',
-//            'Lojas_idLojas'                         => 1
-//        ]);
+        Categoria_ingrediente::insert([
+            ['nome' => 'Categoria Padrão', 'Lojas_idLojas' => 1]
+        ]);
     }
 }

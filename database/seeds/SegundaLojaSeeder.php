@@ -6,7 +6,7 @@ use App\Models\Loja;
 use App\User;
 use App\Models\User_has_perfil;
 
-class PeopleSeeder extends Seeder
+class SegundaLojaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,22 +16,18 @@ class PeopleSeeder extends Seeder
     public function run()
     {
         Loja::create([
-//            'inicio_funcionamento'					=> '00:00',
-//            'termino_funcionamento'					=> '23:59',
-//            'inicio_delivery'					    => '00:00',
-//            'termino_delivery'					    => '23:59',
-            'fantasia'					            => 'Pizza Lenta',
-            'CNPJ'					                => '09090909090902',
-            'razao_social'      					=> 'Pizza Lenta',
-            'abreviacao'		        			=> 'Lenta',
-            'phone'					                => '(61) 0000-0010',
+            'fantasia'					            => 'Segunda Loja',
+            'CNPJ'					                => '00000000000000',
+            'razao_social'      					=> 'Segunda Loja',
+            'abreviacao'		        			=> '2ª Loja',
+            'phone'					                => '(00) 0000-0000',
 
-            'CEP'   					            => '73035-070',
-            'Logradouro'        					=> 'Quadra 09, Bloco B, Lojas 4 e 8',
-            'Bairro'			            		=> 'Asa Norte',
-            'Cidade'				        	    => 'Brasília',
-            'latitude'                              => '-16.764851',
-            'longitude'                             => '-47.885979',
+            'CEP'   					            => '00000-000',
+            'Logradouro'        					=> 'Logradouro Completo da Loja',
+            'Bairro'			            		=> 'Bairro da Loja',
+            'Cidade'				        	    => 'Cidade da Loja',
+            'latitude'                              => '-15.794174',
+            'longitude'                             => '-47.881883',
 
             'agendamentos'                          => true,
             'pagamentosOnline'                      => true
@@ -94,39 +90,6 @@ class PeopleSeeder extends Seeder
             'Lojas_idLojas'         => 2
         ]);
 
-        //Loja Rápida
-        User::create([
-            'name'									=> 'Lojista Rápido',
-            'email'									=> 'lrapido@bratech.info',
-            'password'								=> bcrypt('123456'),
-            'Lojas_idLojas'                         => 1
-        ]);
-        User::create([
-            'name'									=> 'Gerente Rápido',
-            'email'									=> 'grapido@bratech.info',
-            'password'								=> bcrypt('123456'),
-            'Lojas_idLojas'                         => 1
-        ]);
-        User::create([
-            'name'									=> 'Atendente Rápido',
-            'email'									=> 'arapido@bratech.info',
-            'password'								=> bcrypt('123456'),
-            'Lojas_idLojas'                         => 1
-        ]);
-        User_has_perfil::create([
-            'Users_idUsers'                         => 2,
-            'Perfils_idPerfils'                     => 2
-        ]);
-        User_has_perfil::create([
-            'Users_idUsers'                         => 3,
-            'Perfils_idPerfils'                     => 3
-        ]);
-        User_has_perfil::create([
-            'Users_idUsers'                         => 4,
-            'Perfils_idPerfils'                     => 4
-        ]);
-
-        //Loja Lenta
         User::create([
             'name'									=> 'Lojista Lento',
             'email'									=> 'llento@bratech.info',
