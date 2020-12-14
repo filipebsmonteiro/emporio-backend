@@ -68,7 +68,7 @@ class Loja extends Model
             'ceps_lojas',
             'Lojas_idLojas',
             'Ceps_idCeps'
-        );//->withPivot('id', 'valor');
+        );
     }
 
     public function usuarios()

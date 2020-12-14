@@ -26,8 +26,8 @@ class CreateCupomsTable extends Migration
             $table->double('porcentagem')   ->nullable();
             $table->double('valor')         ->nullable();
 
-            $table->foreignId('Cat_produtos_idCat_produtos')->constrained('categoria_produtos');
-            $table->foreignId('Produtos_idProdutos')->constrained('produtos');
+            $table->foreignId('Cat_produtos_idCat_produtos')->nullable()->constrained('categoria_produtos');
+            $table->foreignId('Produtos_idProdutos')->nullable()->constrained('produtos');
 
             $table->timestamp('validade');
             $table->boolean('usado')        ->default(false);

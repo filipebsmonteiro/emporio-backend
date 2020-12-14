@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\API;
 
 
+use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-abstract class ApiController
+abstract class ApiController extends Controller
 {
     use AuthorizesRequests;
 

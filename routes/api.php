@@ -24,6 +24,14 @@ Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'as' => 'painel
         Route::post('me', 'AuthController@me');
     });
 
+    Route::group(['prefix' => 'cep'], function () {
+        Route::get('', 'CEPController@index');
+        Route::get('bairros', 'CEPController@bairros');
+        Route::get('available/{bairro}', 'CEPController@available');
+        Route::get('listAttached/{bairro}', 'CEPController@listAttached');
+        Route::post('attach', 'CEPController@attach');
+    });
+
     Route::apiResource('cliente', 'ClienteController')->only([
         'index', 'show'
     ]);
