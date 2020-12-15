@@ -29,6 +29,13 @@ class CEPController extends ApiController
     public function index(Request $request)
     {
         $this->prepareQuery($request);
+        $this->Query->select([
+            'id',
+            'taxaEntrega',
+            'vlr_minimo_pedido',
+            'Logradouro',
+            'Bairro',
+        ]);
         $this->executeQuery($request);
         return response()->json($this->Results);
     }
