@@ -1,0 +1,53 @@
+version: "3.7"
+
+services:
+
+  #PHP Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    restart: unless-stopped
+    tty: true
+    ports:
+        - "8000:8000"
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - backend-network
+    links:
+      - db
+    depends_on:
+      - db
+
+#  #Nginx Service
+#  webserver:
+#    image: nginx:alpine
+#    container_name: webserver
+#    restart: unless-stopped
+#    tty: true
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    networks:
+#      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: emporio
+      MYSQL_ROOT_PASSWORD: root
+    networks:
+      - backend-network
+
+#Docker Networks
+networks:
+  backend-network:
+    driver: bridge
