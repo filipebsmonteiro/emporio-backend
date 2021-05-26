@@ -82,8 +82,8 @@ Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'as' => 'painel
         Route::delete('{id}', 'ProdutoController@destroy');
     });
 
-    Route::apiResource('loja', 'LojaController')->only([
-        'index', 'show', 'update'
+    Route::apiResource('loja', 'LojaController')->except([
+        'destroy'
     ]);
 
     Route::apiResource('usuario', 'UsuarioController');

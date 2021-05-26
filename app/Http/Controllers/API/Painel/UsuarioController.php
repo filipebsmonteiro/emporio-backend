@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\Painel;
 
 use App\Http\Controllers\API\ApiController;
 use App\Http\Requests\API\ClienteFormRequest;
+use App\Http\Requests\API\PainelUsuarioFormRequest;
 use App\Models\Cliente;
 use App\User;
 use Illuminate\Http\Request;
@@ -28,9 +29,13 @@ class UsuarioController extends ApiController
         return response()->json($this->Results);
     }
 
-    public function store(Request $request, $id)
+    public function store(PainelUsuarioFormRequest $request)
     {
         $dataForm = $request->all();
+
+        if ( !isset($dataForm['Lojas_idLojas']) ) {
+            $dataForm['Lojas_idLojas']	= auth('api_painel')->user()->Lojas_idLojas;
+        }
 
         if ( isset($dataForm['password']) ) {
             $dataForm['password']	= bcrypt($dataForm['password']);;
@@ -51,7 +56,7 @@ class UsuarioController extends ApiController
         return response()->json($entity);
     }
 
-    public function update(Request $request, $id)
+    public function update(PainelUsuarioFormRequest $request, $id)
     {
         $dataForm = $request->all();
 
@@ -62,13 +67,13 @@ class UsuarioController extends ApiController
         if ( isset($dataForm['password']) ) {
             $dataForm['password']	= bcrypt($dataForm['password']);;
         }else {
-            array_pull($dataForm, 'password');
+            unset($dataForm['password']);
         }
 
         $usuario = $this->Model->find($id);
         if ( isset($dataForm['perfil']) ) {
             $usuario->perfils()->sync($dataForm['perfil']);
-            array_pull($dataForm, 'perfil');
+            unset($dataForm['perfil']);
         }
 
         $usuario->update($dataForm);
