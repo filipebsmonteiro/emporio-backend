@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 config_ ()
 {
     dispatch config "help"
@@ -29,6 +30,7 @@ config_command_help ()
   <32;1>db<0>                        Configure Database Migrations and Seeds
   <32;1>new<0>                       Configure new environment <35>(set keys, db and composer)
   <32;1>keys<0>                      Configure Application key and JWT key
+  <32;1>optimize<0>                  Run Artisan Optimize
 "
 #    docker exec -it app /bin/bash
 }
@@ -216,6 +218,15 @@ config_command_keys ()
     docker exec -it app php artisan optimize
     docker exec -it app php artisan key:generate
     docker exec -it app php artisan jwt:secret
+    docker exec -it app php artisan vendor:publish --tag="cors"
+    docker exec -it app php artisan optimize
+}
+
+config_command_optimize ()
+{
+    docker exec -it app php artisan cache:clear
+    docker exec -it app php artisan route:clear
+    docker exec -it app php artisan config:clear
     docker exec -it app php artisan optimize
 }
 
@@ -248,44 +259,24 @@ config_command_composer-install ()
 #
 #    [ -d "${pwd}/tmp/ssh" ] && rm -rf "${pwd}/tmp/ssh"
 
-    rm -Rf vendor
+    sudo rm -Rf vendor
     out "<92>Downloading / Installing vendors packages..."
     docker exec -it app composer install --no-interaction --no-cache
     docker exec -it app php artisan optimize
 }
 
-
-
-
-
 config_command_clone ()
 {
     ## Main repositories for the projects
-    project_alice="github"
-    project_bob="bitbucket"
-    project_freight_api="github"
-    project_checkout="github"
-    project_payment="bitbucket"
-    project_solr="bitbucket"
-    project_mobileapi="bitbucket"
-    project_externalshop="bitbucket"
-    project_carmen="bitbucket"
-    project_catalog_search="github"
-    project_catalog="bitbucket"
-    project_catalog_front="bitbucket"
-    project_catalog_api_migrations="bitbucket"
+    project_emporio="github"
+    project_emporio_backend="github"
 
-    vcshost_bitbucket="git@bitbucket.org"
-    vcspath_bitbucket=":dafiti/"
     vcshost_github="git@github.com"
-    vcspath_github=":dafiti-group/"
+    vcspath_github=":filipebsmonteiro/"
 
     repo=${1}
 
     case "${2,,}" in
-        bitbucket)
-            vcs="bitbucket"
-            ;;
         github)
             vcs="github"
             ;;
@@ -319,19 +310,8 @@ config_command_clone ()
 
 config_command_clone-all ()
 {
-    dispatch config "clone alice"
-    dispatch config "clone bob"
-    dispatch config "clone freight-api"
-    dispatch config "clone checkout"
-    dispatch config "clone payment"
-    dispatch config "clone solr"
-    dispatch config "clone mobileapi"
-#    dispatch config "clone externalshop"
-    dispatch config "clone carmen"
-    dispatch config "clone catalog-search"
-    dispatch config "clone catalog"
-    dispatch config "clone catalog-front"
-    dispatch config "clone catalog-api-migrations"
+    dispatch config "clone emporio"
+    dispatch config "clone emporio-backend"
 }
 
 config_chmod_777 ()

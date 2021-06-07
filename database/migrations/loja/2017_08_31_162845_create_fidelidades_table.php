@@ -19,7 +19,7 @@ class CreateFidelidadesTable extends Migration
             $table->double('valorAcumulado')->nullable();
 
             $table->foreignId('Clientes_idClientes')->constrained('clientes');
-            $table->foreignId('Pedidos_idPedidos')->constrained('pedidos');
+            $table->foreignId('Pedidos_idPedidos')->nullable()->constrained('pedidos');
             $table->foreignId('Lojas_idLojas')->constrained('lojas');
 
             $table->timestamps();

@@ -21,7 +21,7 @@ class SiteController extends Controller
 {
 	public function excel()
     {
-        /*ini_set('max_execution_time', 900); //15 minutes
+        ini_set('max_execution_time', 900); //15 minutes
         ini_set('memory_limit', '2048M');//'8192M'); //Change Performance 8Gb
 
         $xlsx = new SimpleXLSX('ExcelPHP/CEPS.xlsx');
@@ -43,24 +43,25 @@ class SiteController extends Controller
                 $taxa   = 0;//(($row[2]!= null) ? $row[2] : 0);
                 $cepCriado  = $CepObj->create([
                     'CEP'               => $row[0],
-                    'Logradouro'        => $row[1],
-                    'Complemento'       => $row[2],
-                    'Local'             => $row[3],
-                    'Bairro'            => $row[4],
-                    'taxaEntrega'       => $taxa
+                    'logradouro'        => $row[1],
+                    'complemento'       => $row[2],
+                    'local'             => $row[3],
+                    'bairro'            => $row[4],
+                    'taxa_entrega'       => $taxa,
+                    'vlr_minimo_pedido' => 5
                 ]);
 //                if ($row[1] == 'INCLUSION'){
-//                    $cepLoja->create([
-//                        'Lojas_idLojas' => 1,
-//                        'Ceps_idCeps'   => $cepCriado->id
-//                    ]);
+                    $cepLoja->create([
+                        'Lojas_idLojas' => 1,
+                        'Ceps_idCeps'   => $cepCriado->id
+                    ]);
 //                }
             }
             return "Foram Importados ".sizeof($rows)." CEPs Com Sucesso, Confira o Banco de Dados !!!";
         } catch (\Illuminate\Database\QueryException $e) {
             return $e->getMessage();
         }
-        /*/return "Funcionalidade desabilitada por Segurança!";
+        //return "Funcionalidade desabilitada por Segurança!";
     }
 
 }

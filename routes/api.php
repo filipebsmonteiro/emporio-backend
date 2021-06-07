@@ -33,7 +33,7 @@ Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'as' => 'painel
     });
 
     Route::apiResource('cliente', 'ClienteController')->only([
-        'index', 'show'
+        'index', 'show', 'update'
     ]);
 
     Route::group(['prefix' => 'cupom'], function () {

@@ -503,7 +503,7 @@ class CieloController extends Controller
             $sendArray['Shipping']['Type']                  = 'FixedAmount';//Free em caso de cupom
             $sendArray['Shipping']['Services']              = [];
 //        Foreach
-            $taxa   = number_format((float)$pedido->enderecoEntrega->cep()->taxaEntrega*100., 0, '.', '');
+            $taxa   = number_format((float)$pedido->enderecoEntrega->cep()->taxa_entrega*100., 0, '.', '');
             array_push($sendArray['Shipping']['Services'],[
                 'Name'          => 'Motoboy',
                 'Price'         => $taxa,
@@ -634,7 +634,7 @@ class CieloController extends Controller
             $sendArray['Shipping']['Type']                  = 'FixedAmount';//Free em caso de cupom
             $sendArray['Shipping']['Services']              = [];
 //        Foreach
-            $taxa   = number_format((float)$pedido->enderecoEntrega->cep()->taxaEntrega*100., 0, '.', '');
+            $taxa   = number_format((float)$pedido->enderecoEntrega->cep()->taxa_entrega*100., 0, '.', '');
             array_push($sendArray['Shipping']['Services'],[
                 'Name'          => 'Motoboy',
                 'Price'         => $taxa,

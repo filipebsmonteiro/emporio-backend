@@ -49,8 +49,9 @@ env_command_help ()
   <32;1>--help<0> (-h)               Display this help message
 
 <33>Available commands:
-  <32;1>up<0>                       Start containers
-  <32;1>down<0>                     Stop containers
+  <32;1>up<0>                       UP containers
+  <32;1>down<0>                     Stop/Remove containers
+  <32;1>start<0>                    Start backend serve
   <32;1>config<0>                   Configure This Project <35>(see help command)
 "
 }

@@ -26,4 +26,9 @@ class ClienteController extends ApiController
         $this->executeQuery($request);
         return response()->json($this->Results);
     }
+
+    public function update(Request $request, $id)
+    {
+        return parent::edit($request, $id);
+    }
 }

@@ -8,11 +8,11 @@ class Ceps extends Model
 {
     protected $fillable = [
         'CEP',
-        'Logradouro',
-        'Complemento',
-        'Local',
-        'Bairro',
-        'taxaEntrega',
+        'logradouro',
+        'complemento',
+        'local',
+        'bairro',
+        'taxa_entrega',
         'vlr_minimo_pedido'
     ];
 }

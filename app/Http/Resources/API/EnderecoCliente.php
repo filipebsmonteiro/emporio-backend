@@ -21,7 +21,7 @@ class EnderecoCliente extends JsonResource
             'Bairro'        => $this->Bairro,
             'Cidade'        => $this->Cidade,
             'Referencia'    => $this->Referencia,
-            'taxa_entrega'  => $this->cep()->taxaEntrega,
+            'taxa_entrega'  => $this->cep()->taxa_entrega,
         ];
     }
 }

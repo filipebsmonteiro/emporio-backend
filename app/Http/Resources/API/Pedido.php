@@ -22,7 +22,7 @@ class Pedido extends JsonResource
             'referencia'        => $this->referencia,
             'observacoes'       => $this->observacoes,
             'valor'             => $this->valor,
-            'taxa_entrega'      => $this->taxaEntrega,
+            'taxa_entrega'      => $this->taxa_entrega,
             'valor_fidelidade'  => $this->valor_fidelidade,
             'confirmed_at'      => $this->confirmed_at,
             'sent_at'           => $this->sent_at,
