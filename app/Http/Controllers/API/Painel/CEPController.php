@@ -29,63 +29,52 @@ class CEPController extends ApiController
 
     public function index(Request $request)
     {
-        $this->prepareQuery($request);
-        $this->Query->select([
-            'id',
-            'taxa_entrega',
-            'vlr_minimo_pedido',
-            'logradouro',
-            'bairro',
-        ]);
-        $this->executeQuery($request);
-        return response()->json($this->Results);
+        $request->filters = json_decode($request->filters);
+
+        if (property_exists($request->filters, 'available')) {
+            return $this->available($request->filters->bairro);
+        }
+
+        if (property_exists($request->filters, 'attached')) {
+            return $this->attached($request->filters->bairro);
+        }
+
+        return response();
     }
 
-//    public function available($bairro)
-//    {
-////        Lista Ceps que Ainda Não Possuem Lojas Entregando naquele bairro
-//        return $this->Query
-//            ->from($this->table,'c')
-//            ->leftJoin($this->cepLojaTable . ' as cl', 'c.id', '=', 'cl.Ceps_idCeps')
-//            ->whereNull('cl.Ceps_idCeps')
-//            ->where('c.bairro', 'LIKE', $bairro)
-//            ->get([
-//                'c.id',
-//                'c.logradouro',
-//                'c.Cep',
-//                'c.taxa_entrega',
-//                'c.vlr_minimo_pedido'
-//            ])
-//            ->map(function ($endereco) {
-//                $prefixo = explode(' ', $endereco->logradouro);
-//                $endereco->prefixo = $prefixo[0];
-//                return $endereco;
-//            });
-//    }
-//
-//    public function listAttached($bairro)
-//    {
-////        Lista Ceps que a Loja informada está Entregando naquele Bairro
-//        return $this->Query
-//            ->from($this->table, 'c')
-//            ->leftJoin($this->cepLojaTable . ' as cl', 'c.id', '=', 'cl.Ceps_idCeps')
-//            ->where('cl.Lojas_idLojas', auth('api_painel')->user()->Lojas_idLojas)
-//            ->where('c.bairro', 'LIKE', $bairro)
-//            ->get([
-//                'c.id',
-//                'c.logradouro',
-//                'c.Cep',
-//                'c.taxa_entrega',
-//                'c.vlr_minimo_pedido'
-//            ])
-//            ->map(function ($endereco) {
-//                $prefixo = explode(' ', $endereco->logradouro);
-//                $endereco->prefixo = $prefixo[0];
-//                return $endereco;
-//            });
-//    }
+    public function available($bairro)
+    {
+        // Lista Ceps que Ainda Não Possuem Lojas Entregando naquele bairro
+        return $this->Query
+            ->from($this->table, 'c')
+            ->leftJoin($this->cepLojaTable . ' as cl', 'c.id', '=', 'cl.Ceps_idCeps')
+            ->whereNull('cl.Ceps_idCeps')
+            ->where('c.bairro', 'LIKE', $bairro)
+            ->get([
+                'c.id',
+                'c.taxa_entrega',
+                'c.vlr_minimo_pedido',
+                'c.logradouro'
+            ]);
+    }
 
-    public function attach(Request $request)
+    public function attached($bairro)
+    {
+        // Lista Ceps que a Loja informada está Entregando naquele Bairro
+        return $this->Query
+            ->from($this->table, 'c')
+            ->leftJoin($this->cepLojaTable . ' as cl', 'c.id', '=', 'cl.Ceps_idCeps')
+            ->where('cl.Lojas_idLojas', auth('api_painel')->user()->Lojas_idLojas)
+            ->where('c.bairro', 'LIKE', $bairro)
+            ->get([
+                'c.id',
+                'c.taxa_entrega',
+                'c.vlr_minimo_pedido',
+                'c.logradouro'
+            ]);
+    }
+
+    public function update($id, Request $request)
     {
         // Change Performance
         ini_set('memory_limit', '4096M');
@@ -109,46 +98,46 @@ class CEPController extends ApiController
         return response()->json(['message' => 'CEP\'s vinculados com Sucesso!'], 201);
     }
 
-//    public function editaCeps($id, Request $request, Ceps $ceps)
-//    {
-//        $this->authorize('loja_edita_cep');
-//
-//        $cepLojaObj     = new Ceps_loja();
-//        $dataForm       = $request->except('_token')['Enderecos'];
-//
-//        foreach ($dataForm as $index => $endereco) {
-//            if ( isset($endereco['Ceps_idCeps']) ){
-//                $ceps->find($endereco['Ceps_idCeps'])
-//                    ->update([
-//                        'taxa_entrega'       => $endereco['taxa_entrega'],
-//                        'vlr_minimo_pedido' => $endereco['vlr_minimo_pedido']
-//                    ]);
-//            }
-//        }
-//        $bairros        = $ceps->select('bairro')->groupBy('bairro')->get();
-//        $Loja           = $this->Loja->find($id);
-//        flash('CEPs da Loja: '.$Loja->razao_social.'. Editados com sucesso !', 'success');
-//        return view('Painel.Administrativo.Loja.gerenciar.gerenciar', compact('bairros','Loja'));
-//    }
-//
-//    public function desvinculaCeps($id, Request $request, Ceps $ceps)
-//    {
-//        $this->authorize('loja_desvincula_cep');
-//
-//        $cepLojaObj     = new Ceps_loja();
-//        $dataForm       = $request->except('_token')['Enderecos'];
-//
-//        foreach ($dataForm as $index => $endereco) {
-//            if ( isset($endereco['Ceps_idCeps']) ){
-//                $cepLojaAux = $cepLojaObj->where('Lojas_idLojas', $id)
-//                    ->where('Ceps_idCeps', $endereco['Ceps_idCeps'])
-//                    ->first();
-//                $cepLojaAux->delete();
-//            }
-//        }
-//        $bairros        = $ceps->select('bairro')->groupBy('bairro')->get();
-//        $Loja           = $this->Loja->find($id);
-//        flash('CEPs Desvinculados com sucesso da Loja: '.$Loja->razao_social.'!', 'success');
-//        return view('Painel.Administrativo.Loja.gerenciar.gerenciar', compact('bairros','Loja'));
-//    }
+    public function editaCeps($id, Request $request, Ceps $ceps)
+    {
+        $this->authorize('loja_edita_cep');
+
+        $cepLojaObj = new Ceps_loja();
+        $dataForm = $request->except('_token')['Enderecos'];
+
+        foreach ($dataForm as $index => $endereco) {
+            if (isset($endereco['Ceps_idCeps'])) {
+                $ceps->find($endereco['Ceps_idCeps'])
+                    ->update([
+                        'taxa_entrega' => $endereco['taxa_entrega'],
+                        'vlr_minimo_pedido' => $endereco['vlr_minimo_pedido']
+                    ]);
+            }
+        }
+        $bairros = $ceps->select('bairro')->groupBy('bairro')->get();
+        $Loja = $this->Loja->find($id);
+        flash('CEPs da Loja: ' . $Loja->razao_social . '. Editados com sucesso !', 'success');
+        return view('Painel.Administrativo.Loja.gerenciar.gerenciar', compact('bairros', 'Loja'));
+    }
+
+    public function desvinculaCeps($id, Request $request, Ceps $ceps)
+    {
+        $this->authorize('loja_desvincula_cep');
+
+        $cepLojaObj = new Ceps_loja();
+        $dataForm = $request->except('_token')['Enderecos'];
+
+        foreach ($dataForm as $index => $endereco) {
+            if (isset($endereco['Ceps_idCeps'])) {
+                $cepLojaAux = $cepLojaObj->where('Lojas_idLojas', $id)
+                    ->where('Ceps_idCeps', $endereco['Ceps_idCeps'])
+                    ->first();
+                $cepLojaAux->delete();
+            }
+        }
+        $bairros = $ceps->select('bairro')->groupBy('bairro')->get();
+        $Loja = $this->Loja->find($id);
+        flash('CEPs Desvinculados com sucesso da Loja: ' . $Loja->razao_social . '!', 'success');
+        return view('Painel.Administrativo.Loja.gerenciar.gerenciar', compact('bairros', 'Loja'));
+    }
 }

@@ -25,11 +25,12 @@ Route::group(['namespace' => 'API\Painel', 'prefix' => 'painel', 'as' => 'painel
     });
 
     Route::group(['prefix' => 'cep'], function () {
-        Route::get('', 'CEPController@index');
         Route::get('bairros', 'CEPController@bairros');
-        Route::get('available/{bairro}', 'CEPController@available');
-        Route::get('listAttached/{bairro}', 'CEPController@listAttached');
-        Route::post('attach', 'CEPController@attach');
+        Route::get('', 'CEPController@index');
+        Route::put('', 'CEPController@update');
+
+//        Route::get('available/{bairro}', 'CEPController@available');
+//        Route::get('listAttached/{bairro}', 'CEPController@listAttached');
     });
 
     Route::apiResource('cliente', 'ClienteController')->only([
