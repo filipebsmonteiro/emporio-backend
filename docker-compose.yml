@@ -2,41 +2,38 @@ version: "3.7"
 
 services:
 
-  #PHP Service
-  app:
+  php:
     build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: app
-    restart: unless-stopped
-    tty: true
-    ports:
-        - "8000:8000"
+      context: docker/php
+    container_name: ${APP_NAME}-php
+    working_dir: /application
     volumes:
-      - ./:/var/www/html
+      - ./:/application
+    links:
+      - mysql
     networks:
       - backend-network
-    links:
-      - db
+
+  nginx:
+    image: nginx:alpine
+    container_name: ${APP_NAME}-nginx
+    working_dir: /application
+    volumes:
+      - ./:/application
+      - ./docker/nginx/${APP_ENV}/nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./docker/certbot/conf:/etc/letsencrypt
+      - ./docker/certbot/www:/var/www/certbot
+    ports:
+      - 80:80
+      - 443:443
     depends_on:
-      - db
+      - php
+    networks:
+      - backend-network
 
-#  #Nginx Service
-#  webserver:
-#    image: nginx:alpine
-#    container_name: webserver
-#    restart: unless-stopped
-#    tty: true
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    networks:
-#      - app-network
-
-  #MySQL Service
-  db:
+  mysql:
     image: mysql:8.0.25
-    container_name: db
+    container_name: ${APP_NAME}-mysql
     restart: unless-stopped
     tty: true
     ports:
@@ -47,7 +44,6 @@ services:
     networks:
       - backend-network
 
-#Docker Networks
 networks:
   backend-network:
     driver: bridge

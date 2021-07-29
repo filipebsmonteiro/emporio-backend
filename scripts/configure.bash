@@ -1,28 +1,37 @@
 #! /bin/bash
 
-pwd=$(pwd)
+source "${pwd}/scripts/logo.bash"
 
-cd pwd/..
+logo
 
-#[ -d "/vendor/" ] && echo "Directory /vendor/ exists."
+[ -d "vendor" ] && echo "Directory \vendor exists. (Deleting)"
 cp .env.example ./.env
 
 rm -Rf vendor
 
-docker exec -it app composer install --no-interaction --no-cache
+docker exec -it emporio-php composer install --no-interaction --no-cache
 
-docker exec -it app php artisan optimize
-docker exec -it app php artisan key:generate
-docker exec -it app php artisan jwt:secret
+docker exec -it emporio-php php artisan optimize
+docker exec -it emporio-php php artisan key:generate
+docker exec -it emporio-php php artisan jwt:secret
 
-docker exec -it app php artisan optimize
-docker exec -it app php artisan migrate
-docker exec -it app php artisan migrate --path=database/migrations/loja
-docker exec -it app php artisan db:seed
+docker exec -it emporio-php php artisan optimize
+docker exec -it emporio-php php artisan migrate
+docker exec -it emporio-php php artisan migrate --path=database/migrations/loja
+docker exec -it emporio-php php artisan db:seed
 
-docker exec -it app php artisan optimize
+docker exec -it emporio-php php artisan optimize
 
-docker exec -it app /bin/bash
+docker exec -it emporio-php touch storage/logs/laravel.log
+docker exec -it emporio-php chmod 777 storage/logs/laravel.log
+docker exec -it emporio-php chmod -R 777 storage/framework/sessions
+
+docker exec -it emporio-php chmod 777 storage/framework/cache
+docker exec -it emporio-php chmod 777 storage/framework/views
+docker exec -it emporio-php
+docker exec -it emporio-php
+
+docker exec -it emporio-php php artisan optimize
+
+#docker exec -it emporio-php /bin/bash
 exit
-
-#php artisan serve --host=0.0.0.0

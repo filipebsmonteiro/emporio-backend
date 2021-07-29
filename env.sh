@@ -9,9 +9,8 @@ source "${pwd}/scripts/logo.bash"
 
 source "${pwd}/scripts/checks.bash"
 
-source "${pwd}/scripts/config.bash"
+source "${pwd}/scripts/configure.bash"
 source "${pwd}/scripts/docker.bash"
-
 
 env_ ()
 {
@@ -56,21 +55,6 @@ env_command_help ()
 "
 }
 
-env_command_config ()
-{
-    dispatch config "${@}"
-}
-
-env_command_optimize ()
-{
-    docker exec -it app php artisan optimize
-}
-
-env_command_start ()
-{
-    docker exec -it app php artisan serve --host=0.0.0.0
-}
-
 env_command_up ()
 {
     dispatch docker "up"
@@ -79,6 +63,16 @@ env_command_up ()
 env_command_down ()
 {
     dispatch docker "down"
+}
+
+env_command_start ()
+{
+    dispatch docker "start"
+}
+
+env_command_stop ()
+{
+    dispatch docker "stop"
 }
 
 dispatch env "$@"
