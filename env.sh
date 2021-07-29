@@ -75,4 +75,9 @@ env_command_stop ()
     dispatch docker "stop"
 }
 
+env_command_config ()
+{
+    dispatch configure "install"
+}
+
 dispatch env "$@"
