@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 config_ ()
 {
     dispatch config "help"
@@ -26,16 +25,35 @@ config_command_help ()
   <32;1>--help<0> (-h)               Display this help message
 
 <33>Available commands:
-  <32;1>composer-install<0>          Runs composer install for project
-  <32;1>db<0>                        Configure Database Migrations and Seeds
-  <32;1>new<0>                       Configure new environment <35>(set keys, db and composer)
-  <32;1>keys<0>                      Configure Application key and JWT key
-  <32;1>optimize<0>                  Run Artisan Optimize
+  <32;1>programs<0>                  Check programs environment <35>(not set variables, hosts)
+  <32;1>clone-all<0>                 Clone all projects
+  <32;1>fullstack<0>                 Configure the Fullstack <35>(Frontend, Backend, Mysql)
+  <32;1>db-import <90;1>[--force]<0>       Import database <90;1>(force if it already exists)
 "
-#    docker exec -it app /bin/bash
 }
 
-config_command_check-environment ()
+config_command_composer-install ()
+{
+    repo=${1}
+    out "<92>Running composer install (your repo's password will be asked): "
+    cp -ra "$HOME/.ssh" "${pwd}/tmp/ssh"
+
+    docker run -d --name composer-container -w /app/ -v "${pwd}/../${repo}":/app -v "${pwd}/tmp/ssh":/root/.ssh --entrypoint sleep gfgit/php-ci:7.1 3600
+
+    CONFIG=/root/.ssh/config
+
+    if [ -f "${pwd}/tmp/ssh/config" ]; then
+        docker exec -it composer-container bash -c 'chmod 400 /root/.ssh/config && chown root.root /root/.ssh/config'
+    fi
+
+    docker exec -it composer-container bash -c 'eval $(ssh-agent) && ssh-add && composer install --no-scripts --ignore-platform-reqs'
+
+    docker rm -f composer-container
+
+    [ -d "${pwd}/tmp/ssh" ] && rm -rf "${pwd}/tmp/ssh"
+}
+
+config_command_programs ()
 {
     # sudo if not root
     if [ ! $(id -u) -eq 0 ]; then
@@ -112,18 +130,20 @@ config_command_check-environment ()
 
         out "<33>You don't have docker-compose. Installing..."
         command -v curl > /dev/null && {
-            DOCKER_LATEST=$(curl -L -H "Accept: application/json" https://github.com/docker/compose/releases/latest | \
-                        cut -d , -f 2 | \
-                        cut -d : -f 2 | \
-                        tr -d \"
-                        )
+            DOCKER_LATEST=$(
+                curl -L -H "Accept: application/json" https://github.com/docker/compose/releases/latest | \
+                cut -d , -f 2 | \
+                cut -d : -f 2 | \
+                tr -d \"
+            )
             $SUDO curl -L "https://github.com/docker/compose/releases/download/${DOCKER_LATEST}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         } || {
-            DOCKER_LATEST=$(wget --header="Accept: application/json" -qO- https://github.com/docker/compose/releases/latest | \
-                        cut -d , -f 2 | \
-                        cut -d : -f 2 | \
-                        tr -d \"
-                        )
+            DOCKER_LATEST=$(
+                wget --header="Accept: application/json" -qO- https://github.com/docker/compose/releases/latest | \
+                cut -d , -f 2 | \
+                cut -d : -f 2 | \
+                tr -d \"
+            )
             $SUDO wget "https://github.com/docker/compose/releases/download/${DOCKER_LATEST}/docker-compose-$(uname -s)-$(uname -m)" -qO /usr/local/bin/docker-compose
         }
     }
@@ -142,158 +162,23 @@ config_command_check-environment ()
         fi
     }
 
-    ## Set hosts file
-    ###############################################################################
-
-    ## Extract hosts from docker-compose.yml
-#    HOSTS=$(
-#        cat docker-compose*.yml | \
-#        grep VIRTUAL_HOST | \
-#        cut -d'=' -f2 | \
-#        sed 's/,/\n/g' | \
-#        sed 's/^\.//g' | \
-#        envsubst | \
-#        eval echo $(cat -) | \
-#        sort | uniq
-#    )
-#
-#    ## Extract TLDs (just for grouping)
-#    DOMAINS=$(
-#        echo $HOSTS | \
-#        sed 's/ /\n/g' | \
-#        sed -E 's/.*\.([a-z]+)$/\1/g' | \
-#        sort | uniq | xargs
-#    )
-#
-#    ## Generate hosts' entries
-#    HOSTSENTRIES=
-#    for d in $DOMAINS; do
-#        HOSTSLINE=$(
-#            echo $HOSTS | \
-#            sed 's/ /\n/g' | \
-#            grep \.$d | \
-#            xargs | \
-#            echo "127.0.0.1 $(cat -)"
-#        )
-#
-#        HOSTSENTRIES+="\n$HOSTSLINE\n"
-#    done
-#
-#    # remove old baks
-#    ls /etc/hosts.bak.* | sort -hr | tail -n+3 | xargs $SUDO rm
-#
-#    # Black-magic add/replace ;)
-#    $SUDO cp /etc/hosts "/etc/hosts.bak.$(date +%Y%m%d%H%M%S)" && \
-#        (
-#            sed -n '1,/^# DFTECH BEGIN/{/^# DFTECH BEGIN/!p;}' /etc/hosts; \
-#            echo "# DFTECH BEGIN"; \
-#            echo -e $HOSTSENTRIES; \
-#            echo "# DFTECH END"; \
-#            sed -n '/^# DFTECH END/,${/^# DFTECH END/!p;}' /etc/hosts; \
-#        ) | \
-#        $SUDO tee /etc/hosts.new > /dev/null | \
-#        sed -n '/^# DFTECH BEGIN/,/^# DFTECH END/p' && \
-#        $SUDO mv /etc/hosts.new /etc/hosts
 }
 
-config_command_new ()
+config_command_clone-all ()
 {
-    dispatch config "check-environment"
-
-    if [ ! "$(docker ps -q -f name=app)" ]; then
-        out "<31>Container app must be UP"
-        return 1
-    fi
-
-    dispatch config "composer-install"
-
-    dispatch config "keys"
-
-    dispatch config "db"
-}
-
-config_command_keys ()
-{
-    cp .env.example ./.env
-    docker exec -it app php artisan optimize
-    docker exec -it app php artisan key:generate
-    docker exec -it app php artisan jwt:secret
-    docker exec -it app php artisan vendor:publish --tag="cors"
-    docker exec -it app php artisan optimize
-}
-
-config_command_optimize ()
-{
-    docker exec -it app php artisan cache:clear
-    docker exec -it app php artisan route:clear
-    docker exec -it app php artisan config:clear
-    docker exec -it app php artisan optimize
-}
-
-config_command_db ()
-{
-    docker exec -it app php artisan optimize
-    docker exec -it app php artisan migrate
-    docker exec -it app php artisan migrate --path=database/migrations/loja
-    docker exec -it app php artisan db:seed
-    docker exec -it app php artisan optimize
-}
-
-config_command_composer-install ()
-{
-#    repo=${1}
-#    out "<92>Running composer install (your repo's password will be asked): "
-#    cp -ra "$HOME/.ssh" "${pwd}/tmp/ssh"
-#
-#    docker run -d --name composer-container -w /app/ -v "${pwd}/../${repo}":/app -v "${pwd}/tmp/ssh":/root/.ssh --entrypoint sleep gfgit/php-ci:7.1 3600
-#
-#    CONFIG=/root/.ssh/config
-#
-#    if [ -f "${pwd}/tmp/ssh/config" ]; then
-#        docker exec -it composer-container bash -c 'chmod 400 /root/.ssh/config && chown root.root /root/.ssh/config'
-#    fi
-#
-#    docker exec -it composer-container bash -c 'eval $(ssh-agent) && ssh-add && composer install --no-scripts --ignore-platform-reqs'
-#
-#    docker rm -f composer-container
-#
-#    [ -d "${pwd}/tmp/ssh" ] && rm -rf "${pwd}/tmp/ssh"
-
-    sudo rm -Rf vendor
-    out "<92>Downloading / Installing vendors packages..."
-    docker exec -it app composer install --no-interaction --no-cache
-    docker exec -it app php artisan optimize
+    dispatch config "clone emporio-backend"
+    dispatch config "clone emporio"
 }
 
 config_command_clone ()
 {
-    ## Main repositories for the projects
-    project_emporio="github"
-    project_emporio_backend="github"
-
-    vcshost_github="git@github.com"
-    vcspath_github=":filipebsmonteiro/"
-
     repo=${1}
 
-    case "${2,,}" in
-        github)
-            vcs="github"
-            ;;
-        ""|*)
-            vcs="project_${repo//-/_}"
-            vcs=${!vcs:="bitbucket"}
-            ;;
-    esac
-
-    vcshost="vcshost_$vcs"
-    vcshost=${!vcshost}
-
-    vcspath="vcspath_$vcs"
-    vcspath=${!vcspath}
+    vcshost="git@github.com"  # git@github.com:filipebsmonteiro/emporio-backend.git
+    vcspath=":filipebsmonteiro/"
 
     [[ ! $(ssh -T ${vcshost} 2>&1 | grep denied | wc -l) -eq 0 ]] && {
-        out "<31>Error, please check your ${vcshost##*@} settings"
+        out "<31>Error, please check your ${vcshost} settings"
         exit 1;
     }
 
@@ -308,11 +193,91 @@ config_command_clone ()
     }
 }
 
-config_command_clone-all ()
+config_clone_question ()
 {
-    dispatch config "clone emporio"
-    dispatch config "clone emporio-backend"
+    repo=${1}
+
+    out -n "<32>Do you wish clone the ${repo} repository? [y|n] "
+    read -r response
+    case $response in
+        [yY][eE][sS]|[yY])
+           dispatch config "clone ${repo}"
+           out ""
+           dispatch config "${repo}"
+        ;;
+        *)
+            exit 1
+        ;;
+    esac
 }
+
+config_command_fullstack ()
+{
+    out "<33>Configuring projects"
+
+    dispatch config "backend"
+#    dispatch config "frontend"
+}
+
+config_command_backend ()
+{
+    backend_path="${pwd}/../emporio-backend"
+    if [ ! -d "${backend_path}" ]; then
+        out "<31>Backend has not been cloned"
+        config_clone_question "emporio-backend"
+    fi
+
+    if [ ! -f "${backend_path}/.env" ]; then
+        out "<31>'.env' don't exists (copying)"
+        cp "${backend_path}/.env.example" "${backend_path}/.env"
+    fi
+
+    if [ ! -d "${backend_path}/storage/logs/laravel.log" ]; then
+
+        out "<31>Backend 'laravel.log' don't exists (creating)"
+        docker exec -it emporio-backend-php touch storage/logs/laravel.log
+    fi
+
+    out "<92>Change files permission, maybe it asks root password"
+    config_chmod_777 "${backend_path}/storage/logs/laravel.log"
+    config_chmod_777 "${backend_path}/storage/framework/sessions"
+    config_chmod_777 "${backend_path}/storage/framework/cache"
+    config_chmod_777 "${backend_path}/storage/framework/views"
+
+    out "<92>Compose Install"
+    config_command_composer-install "emporio-backend"
+#    docker exec -it emporio-backend-php composer install
+
+    out "<92>Artisan Optimize"
+    docker exec -it emporio-backend-php php artisan optimize
+    out ""
+}
+
+config_command_generate-keys ()
+{
+    out "<33>Generating Keys"
+    docker exec -it emporio-php php artisan key:generate
+    docker exec -it emporio-php php artisan jwt:secret
+    docker exec -it emporio-php php artisan optimize
+}
+
+config_command_database-import ()
+{
+    out "<33>Migrating and Seeding Datatables"
+    docker exec -it emporio-php php artisan migrate
+    docker exec -it emporio-php php artisan migrate --path=database/migrations/loja
+    docker exec -it emporio-php php artisan db:seed
+}
+
+#config_command_frontend ()
+#{
+#    if [ ! -d "${pwd}/../emporio" ]; then
+#        out "<31>Frontend has not been cloned"
+#        config_clone_question "emporio"
+#    fi
+#
+#    out "<32>Configuring Frontend"
+#}
 
 config_chmod_777 ()
 {
@@ -321,5 +286,5 @@ config_chmod_777 ()
     if [ $(stat -c "%a" $PATH_CHMOD) -ne 777 ]; then
         sudo chmod -R 777 "$PATH_CHMOD"
     fi
-
+#    docker-compose exec carmen bash -c "cd /var/www/carmen/ && chown -R www-data:www-data app/*"
 }

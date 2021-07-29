@@ -9,7 +9,7 @@ source "${pwd}/scripts/logo.bash"
 
 source "${pwd}/scripts/checks.bash"
 
-source "${pwd}/scripts/configure.bash"
+source "${pwd}/scripts/config.bash"
 source "${pwd}/scripts/docker.bash"
 
 env_ ()
@@ -42,17 +42,28 @@ env_command_help ()
     logo
     out "
 <33>Usage:<0>
-  ./emporio.sh [command] [options]
+  ./env.sh [command] [options]
 
 <33>Options:
   <32;1>--help<0> (-h)               Display this help message
 
 <33>Available commands:
-  <32;1>up<0>                       UP containers
-  <32;1>down<0>                     Stop/Remove containers
+  <32;1>up<0>                       Up containers
+  <32;1>down<0>                     Remove containers
   <32;1>start<0>                    Start backend serve
+  <32;1>stop<0>                     Stop backend serve
   <32;1>config<0>                   Configure This Project <35>(see help command)
 "
+}
+
+env_command_install ()
+{
+    install ${@}
+}
+
+env_command_config ()
+{
+    dispatch config "install"
 }
 
 env_command_up ()
@@ -73,11 +84,6 @@ env_command_start ()
 env_command_stop ()
 {
     dispatch docker "stop"
-}
-
-env_command_config ()
-{
-    dispatch configure "install"
 }
 
 dispatch env "$@"
